@@ -1,11 +1,14 @@
 package entity;
 
+import java.util.List;
+
 public class MessageObject {
 
     private String cpr;
     private int loanAmount;
     private int loanDuration;
     private int creditScore;
+    private List<String> bankNameList;
 
     public MessageObject(String cpr, int loanAmount, int loanDuration) {
         this.cpr = cpr;
@@ -18,6 +21,14 @@ public class MessageObject {
         this.loanAmount = loanAmount;
         this.loanDuration = loanDuration;
         this.creditScore = creditScore;
+    }
+
+    public MessageObject(String cpr, int loanAmount, int loanDuration, int creditScore, List<String> bankNameList) {
+        this.cpr = cpr;
+        this.loanAmount = loanAmount;
+        this.loanDuration = loanDuration;
+        this.creditScore = creditScore;
+        this.bankNameList = bankNameList;
     }
 
     public void setCreditScore(int creditScore) {
@@ -38,6 +49,10 @@ public class MessageObject {
 
     public int getCreditScore() {
         return creditScore;
+    }
+
+    public List<String> getBankNameList() {
+        return bankNameList;
     }
 
     @Override

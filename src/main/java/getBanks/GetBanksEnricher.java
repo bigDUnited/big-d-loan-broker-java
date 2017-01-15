@@ -9,24 +9,31 @@ import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import config.StaticStrings;
+import core.Publisher;
 import entity.Bank;
 import entity.MessageObject;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import recipientList.RecipientList;
 import structure.ComponentInterface;
 
 public class GetBanksEnricher implements ComponentInterface {
 
     private GetBanksChannelAdapter gbca;
     private Gson gson;
+    private Publisher publisher;
+    private RecipientList recipientList;
 
     @Override
     public void init() {
         gbca = new GetBanksChannelAdapter();
         gson = new Gson();
+        publisher = new Publisher();
+        recipientList = new RecipientList();
 
         try {
             ConnectionFactory factory = new ConnectionFactory();
@@ -48,8 +55,10 @@ public class GetBanksEnricher implements ComponentInterface {
             };
             channel.basicConsume(StaticStrings.GET_BANKS_QUEUE_NAME, true, consumer);
 
-        } catch (TimeoutException ex) {
         } catch (IOException ex) {
+            Logger.getLogger(GetBanksEnricher.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TimeoutException ex) {
+            Logger.getLogger(GetBanksEnricher.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -59,9 +68,21 @@ public class GetBanksEnricher implements ComponentInterface {
         MessageObject mo = gson.fromJson(queueMessage, MessageObject.class);
         List<Bank> banks = gbca.getBanks(mo.getCreditScore());
 
+        List<String> bankNames = new ArrayList();
         for (int i = 0; i < banks.size(); i++) {
-            System.out.println("i : " + i + " : " + banks.toString());
+            bankNames.add(banks.get(i).getName());
         }
+
+        mo = new MessageObject(mo.getCpr(), mo.getLoanAmount(), mo.getLoanDuration(), mo.getCreditScore(), bankNames);
+
+        queueMessage = gson.toJson(mo);
+        String hostAddress = StaticStrings.HOST_ADDRESS;
+        String queueName = StaticStrings.RECIPIENT_LIST_QUEUE_NAME;
+
+        publisher.publishMessage(hostAddress, queueName, queueMessage);
+        
+        recipientList.init();
+
     }
 
 }
