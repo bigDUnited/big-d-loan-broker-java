@@ -49,7 +49,7 @@ public class GetBanksEnricher implements ComponentInterface {
                         AMQP.BasicProperties properties, byte[] body)
                         throws IOException {
                     String message = new String(body, "UTF-8");
-                    System.out.println(" [GetBanksEnricher - init] Received '" + message + "'");
+                    System.out.println("[GetBanksEnricher *received*] : " + message);
                     logic(message);
                 }
             };
@@ -80,7 +80,7 @@ public class GetBanksEnricher implements ComponentInterface {
         String queueName = StaticStrings.RECIPIENT_LIST_QUEUE_NAME;
 
         publisher.publishMessage(hostAddress, queueName, queueMessage);
-        
+
         recipientList.init();
 
     }

@@ -19,14 +19,12 @@ public class GetBanksChannelAdapter {
             RuleBaseImplementationService helloService = new RuleBaseImplementationService();
             RuleBaseInterface rbi = (RuleBaseInterface) helloService.getRuleBaseImplementationPort();
             String xmlString = rbi.getBanksByCreditScoreJson(creditScore);
-            System.out.println(xmlString);
 
             JAXBContext jaxbContext = JAXBContext.newInstance(RuleBaseResponse.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
             StringReader reader = new StringReader(xmlString);
             RuleBaseResponse rbs = (RuleBaseResponse) unmarshaller.unmarshal(reader);
-            System.out.println("Hi " + rbs.getBankElem().size());
             return rbs.getBankElem();
         } catch (JAXBException ex) {
             Logger.getLogger(GetBanksChannelAdapter.class.getName()).log(Level.SEVERE, null, ex);

@@ -26,13 +26,11 @@ import structure.ComponentInterface;
 public class DanskeBankTranslator implements ComponentInterface {
 
     private Gson gson;
-    private Publisher publisher;
     private Normalizer normalizer;
 
     @Override
     public void init() {
         gson = new Gson();
-        publisher = new Publisher();
         normalizer = new Normalizer();
 
         try {
@@ -49,7 +47,7 @@ public class DanskeBankTranslator implements ComponentInterface {
                         AMQP.BasicProperties properties, byte[] body)
                         throws IOException {
                     String message = new String(body, "UTF-8");
-                    System.out.println(" [DanskeBankTranslator - init] Received '" + message + "'");
+                    System.out.println(" [DanskeBankTranslator *received*] : " + message);
                     logic(message);
                 }
             };
@@ -64,107 +62,34 @@ public class DanskeBankTranslator implements ComponentInterface {
 
     @Override
     public void logic(String queueMessage) {
-
-        System.out.println("Hello from danske bank - resceived : " + queueMessage);
-
         MessageObject mo = gson.fromJson(queueMessage, MessageObject.class);
 
         int ssn = Integer.parseInt(mo.getCpr().replaceAll("[^\\d.]", ""));
         MessageObjectJsonBank mojb = new MessageObjectJsonBank(ssn, mo.getCreditScore(), mo.getLoanAmount(), mo.getLoanDuration());
 
         String message = gson.toJson(mojb);
-        System.out.println("Final version : " + message);
-//        
-//        try {
-//
-//            AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
-//            builder.replyTo(StaticStrings.NORMALIZER_QUEUE);
-//            builder.contentType("JSON");
-//
-//            String EXCHANGE_NAME = "cphbusiness.bankJSON";
-//
-//            ConnectionFactory factory = new ConnectionFactory();
-//            
-//            factory.setHost("datdb.cphbusiness.dk");
-//            
-//            Connection connection = factory.newConnection();
-//            Channel channel = connection.createChannel();
-//            channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
-//            channel.basicPublish(EXCHANGE_NAME, "", builder.build(), message.getBytes());
-//            System.out.println(" [x] Sent [XXX] '" + message + "'");
-//
-//            channel.close();
-//            connection.close();
-//        } catch (IOException ex) {
-//            Logger.getLogger(DanskeBankTranslator.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (TimeoutException ex) {
-//            Logger.getLogger(DanskeBankTranslator.class.getName()).log(Level.SEVERE, null, ex);
-//        }
 
-//            String QUEUE_FROM_RECIPLIST = "nmc_reciplist_to_translatorbankjson_queue";
-//            String QUEUE_FROM_BANKJSON_TO_NORMALIZER = "nmc_banks_to_normalizer_queue";
-//
-//            ConnectionFactory factory = new ConnectionFactory();
-//            factory.setHost("datdb.cphbusiness.dk");
-//            factory.setPort(5672);
-//            factory.setUsername("student");
-//            factory.setPassword("cph");
-//            Connection connection = factory.newConnection();
-//            Channel channel = connection.createChannel();
-//            channel.queueDeclare(QUEUE_FROM_RECIPLIST, false, false, false, null);
-//            System.out.println("Hello1");
-//
-//            QueueingConsumer consumer = new QueueingConsumer(channel);
-//            channel.basicConsume(QUEUE_FROM_RECIPLIST, true, consumer);
-//            while (true) {
-//                System.out.println("Hello2");
-//                QueueingConsumer.Delivery delivery = consumer.nextDelivery();
-//                System.out.println(" [x] Received from the web app: " + new String(delivery.getBody()));
-//
-//                AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
-//                builder.replyTo(QUEUE_FROM_BANKJSON_TO_NORMALIZER);
-//                builder.correlationId(delivery.getProperties().getCorrelationId());
-//                builder.contentType("JSON");
-//                builder.appId(delivery.getProperties().getAppId());
-//
-//                channel.basicPublish(delivery.getProperties().getReplyTo(), "", builder.build(), message.getBytes());
-//            }
-//        } catch (IOException ex) {
-//            Logger.getLogger(DanskeBankTranslator.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (TimeoutException ex) {
-//            Logger.getLogger(DanskeBankTranslator.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (InterruptedException ex) {
-//            Logger.getLogger(DanskeBankTranslator.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (ShutdownSignalException ex) {
-//            Logger.getLogger(DanskeBankTranslator.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (ConsumerCancelledException ex) {
-//            Logger.getLogger(DanskeBankTranslator.class.getName()).log(Level.SEVERE, null, ex);
-//        }
         try {
-            
             String EXCHANGE_NAME = "cphbusiness.bankJSON";
 
             ConnectionFactory factory = new ConnectionFactory();
             factory.setHost("datdb.cphbusiness.dk");
-            
+
             Connection connection = factory.newConnection();
 
             Channel channel = connection.createChannel();
-            
+
             AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
             builder.replyTo(StaticStrings.NORMALIZER_QUEUE);
-            //builder.correlationId(delivery.getProperties().getCorrelationId());
             builder.contentType("JSON");
-            //builder.appId(delivery.getProperties().getAppId());
 
             channel.basicPublish(EXCHANGE_NAME, "", builder.build(), message.getBytes());
-            System.out.println(" [x] Sent '" + message + "'");
+            System.out.println("[DanskeBankTranslator *sent*] : " + message);
             normalizer.init();
 
             channel.close();
             connection.close();
-            
-            
+
         } catch (IOException ex) {
             Logger.getLogger(DanskeBankTranslator.class.getName()).log(Level.SEVERE, null, ex);
         } catch (TimeoutException ex) {

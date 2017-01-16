@@ -27,6 +27,7 @@ public class GetCreditScoreEnricher implements ComponentInterface {
     @Override
     public void logic(String queueMessage) {
         if (isInit) {
+            System.out.println(" [GetCreditScoreEnricher *received*] : " + queueMessage);
             
             MessageObject mo = gson.fromJson(queueMessage, MessageObject.class);
 

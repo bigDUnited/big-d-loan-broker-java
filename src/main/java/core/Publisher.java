@@ -23,7 +23,7 @@ public class Publisher {
             channel.queueDeclare(queueName, false, false, false, null);
             String message = queueMessage;
             channel.basicPublish("", queueName, null, message.getBytes());
-            System.out.println(" [Publisher - publishMessage] Sent '" + message + "'");
+            System.out.println("[Publisher *sent*] : " + message);
 
             channel.close();
             connection.close();

@@ -24,7 +24,6 @@ public class Normalizer implements ComponentInterface {
     @Override
     public void init() {
         try {
-            System.out.println("Hello world!!");
             connectionFactory = new ConnectionFactory();
             connectionFactory.setHost("localhost");
             connectionFactory.setUsername("guest");
@@ -36,9 +35,8 @@ public class Normalizer implements ComponentInterface {
             channel.queueDeclare(StaticStrings.NORMALIZER_QUEUE, false, false, false, null);
             channel.exchangeDeclare(StaticStrings.NORMALIZER_EXCHANGE, "direct");
             channel.queueBind(StaticStrings.NORMALIZER_QUEUE, StaticStrings.NORMALIZER_EXCHANGE, "");
-            
+
             //
-            
             connectionFactory = new ConnectionFactory();
             connectionFactory.setHost("datdb.cphbusiness.dk");
             connectionFactory.setUsername("what");
@@ -47,45 +45,17 @@ public class Normalizer implements ComponentInterface {
 
             channel = connection.createChannel();
 
-            //channel.queueDeclare(StaticStrings.NORMALIZER_QUEUE, false, false, false, null);
-
             Consumer consumer = new DefaultConsumer(channel) {
                 @Override
                 public void handleDelivery(String consumerTag, Envelope envelope,
                         AMQP.BasicProperties properties, byte[] body)
                         throws IOException {
                     String message = new String(body, "UTF-8");
-                    System.out.println(" [Normalizer - init] Received '" + message + "'");
+                    System.out.println("[Normalizer *received*] : " + message);
                     logic(message);
                 }
             };
             channel.basicConsume(StaticStrings.NORMALIZER_QUEUE, true, consumer);
-
-            System.out.println("final");
-
-//            try {
-//                ConnectionFactory factory = new ConnectionFactory();
-//                factory.setHost("datdb.cphbusiness.dk");
-//                Connection connection = factory.newConnection();
-//                Channel channel = connection.createChannel();
-//
-//                channel.queueDeclare(StaticStrings.NORMALIZER_QUEUE, false, false, false, null);
-//
-//                Consumer consumer = new DefaultConsumer(channel) {
-//                    @Override
-//                    public void handleDelivery(String consumerTag, Envelope envelope,
-//                            AMQP.BasicProperties properties, byte[] body)
-//                            throws IOException {
-//                        String message = new String(body, "UTF-8");
-//                        System.out.println(" [Normalizer - init] Received '" + message + "'");
-//                        logic(message);
-//                    }
-//                };
-//                channel.basicConsume(StaticStrings.GET_BANKS_QUEUE_NAME, true, consumer);
-//
-//            } catch (IOException ex) {
-//            } catch (TimeoutException ex) {
-//            }
         } catch (IOException ex) {
             Logger.getLogger(Normalizer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (TimeoutException ex) {
@@ -95,7 +65,8 @@ public class Normalizer implements ComponentInterface {
 
     @Override
     public void logic(String queueMessage) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println("EXIT : " + queueMessage);
+        System.exit(0);
     }
 
 }

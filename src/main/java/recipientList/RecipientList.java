@@ -44,7 +44,7 @@ public class RecipientList implements ComponentInterface {
                         AMQP.BasicProperties properties, byte[] body)
                         throws IOException {
                     String message = new String(body, "UTF-8");
-                    System.out.println(" [RecipientList - init] Received '" + message + "'");
+                    System.out.println("[RecipientList - *received*] : " + message);
                     logic(message);
                 }
             };
