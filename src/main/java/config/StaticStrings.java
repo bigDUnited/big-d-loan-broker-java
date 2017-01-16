@@ -21,4 +21,8 @@ public class StaticStrings {
     public final static String NORMALIZER_QUEUE = "NRM_QUEUE";
     
     public final static String NORMALIZER_EXCHANGE = "NRM_EXCHANGE";
+    
+    public final static String AGGREGATOR_QUEUE = "AGR_QUEUE";
+    
+    public final static String LOGGER_QUEUE = "L_QUEUE";
 }

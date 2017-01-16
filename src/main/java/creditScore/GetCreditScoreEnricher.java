@@ -37,7 +37,8 @@ public class GetCreditScoreEnricher implements ComponentInterface {
             queueMessage = gson.toJson(mo);
             String hostAddress = StaticStrings.HOST_ADDRESS;
             String queueName = StaticStrings.GET_BANKS_QUEUE_NAME;
-
+            
+            System.out.println("[GetCreditScoreEnricher *send*] : " + queueMessage);
             publisher.publishMessage(hostAddress, queueName, queueMessage);
             
             gbe.init();

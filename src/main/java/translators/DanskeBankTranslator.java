@@ -14,7 +14,7 @@ import com.rabbitmq.client.ShutdownSignalException;
 import config.StaticStrings;
 import core.Publisher;
 import entity.MessageObject;
-import entity.MessageObjectJsonBank;
+import entity.SendMessageObjectJson;
 import getBanks.GetBanksEnricher;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
@@ -47,7 +47,7 @@ public class DanskeBankTranslator implements ComponentInterface {
                         AMQP.BasicProperties properties, byte[] body)
                         throws IOException {
                     String message = new String(body, "UTF-8");
-                    System.out.println(" [DanskeBankTranslator *received*] : " + message);
+                    System.out.println("[DanskeBankTranslator *received*] : " + message);
                     logic(message);
                 }
             };
@@ -65,7 +65,7 @@ public class DanskeBankTranslator implements ComponentInterface {
         MessageObject mo = gson.fromJson(queueMessage, MessageObject.class);
 
         int ssn = Integer.parseInt(mo.getCpr().replaceAll("[^\\d.]", ""));
-        MessageObjectJsonBank mojb = new MessageObjectJsonBank(ssn, mo.getCreditScore(), mo.getLoanAmount(), mo.getLoanDuration());
+        SendMessageObjectJson mojb = new SendMessageObjectJson(ssn, mo.getCreditScore(), mo.getLoanAmount(), mo.getLoanDuration());
 
         String message = gson.toJson(mojb);
 
@@ -82,6 +82,7 @@ public class DanskeBankTranslator implements ComponentInterface {
             AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
             builder.replyTo(StaticStrings.NORMALIZER_QUEUE);
             builder.contentType("JSON");
+            builder.appId(mo.getChosenBank());
 
             channel.basicPublish(EXCHANGE_NAME, "", builder.build(), message.getBytes());
             System.out.println("[DanskeBankTranslator *sent*] : " + message);

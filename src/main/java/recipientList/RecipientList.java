@@ -24,6 +24,7 @@ public class RecipientList implements ComponentInterface {
 
     private Gson gson;
     private Publisher publisher;
+    private String hostAddress = StaticStrings.HOST_ADDRESS;
 
     @Override
     public void init() {
@@ -85,12 +86,13 @@ public class RecipientList implements ComponentInterface {
             }
             //hack
             queueName = StaticStrings.DANSKEBANK_TRANSLATOR_QUEUE;
-            
-            mo = new MessageObject(mo.getCpr(), mo.getLoanAmount(), mo.getLoanDuration(), mo.getCreditScore());
 
-            queueMessage = gson.toJson(mo);
-            String hostAddress = StaticStrings.HOST_ADDRESS;
-            publisher.publishMessage(hostAddress, queueName, queueMessage);
+            MessageObject moToSend = new MessageObject(mo.getCpr(), mo.getLoanAmount(), mo.getLoanDuration(), mo.getCreditScore());
+            moToSend.setChosenBank(banks.get(i));
+            String queueMessageToBank = gson.toJson(moToSend);
+
+            System.out.println("[RecipientList *send* - Bank] : " + queueMessage);
+            publisher.publishMessage(hostAddress, queueName, queueMessageToBank);
 
             DanskeBankTranslator dbt = null;
             switch (queueName) {
@@ -114,6 +116,12 @@ public class RecipientList implements ComponentInterface {
                     break;
 
             }
+        }
+
+        if (!banks.isEmpty()) {
+            String queueMessageToLogger = gson.toJson(mo);
+            System.out.println("[RecipientList *send* - Logger] : " + queueMessageToLogger);
+            publisher.publishMessage(hostAddress, StaticStrings.LOGGER_QUEUE, queueMessageToLogger);
         }
 
     }
