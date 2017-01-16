@@ -78,6 +78,14 @@ public class MessageObject {
         this.interestRate = interestRate;
     }
 
+    public void setLoanAmount(int loanAmount) {
+        this.loanAmount = loanAmount;
+    }
+
+    public void setLoanDuration(int loanDuration) {
+        this.loanDuration = loanDuration;
+    }
+
     @Override
     public String toString() {
         return "MessageObject{" + "cpr=" + cpr + ", loanAmount=" + loanAmount + ", loanDuration=" + loanDuration + ", creditScore=" + creditScore + ", bankNameList=" + bankNameList + '}';

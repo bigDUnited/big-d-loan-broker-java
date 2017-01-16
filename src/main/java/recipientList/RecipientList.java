@@ -14,6 +14,7 @@ import entity.MessageObject;
 import getBanks.GetBanksEnricher;
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,11 +26,13 @@ public class RecipientList implements ComponentInterface {
     private Gson gson;
     private Publisher publisher;
     private String hostAddress = StaticStrings.HOST_ADDRESS;
+    private Random random;
 
     @Override
     public void init() {
         gson = new Gson();
         publisher = new Publisher();
+        random = new Random();
 
         try {
             ConnectionFactory factory = new ConnectionFactory();
@@ -84,7 +87,11 @@ public class RecipientList implements ComponentInterface {
                     break;
 
             }
-            //hack
+            //Simplify solution
+            if (!queueName.equals(StaticStrings.DANSKEBANK_TRANSLATOR_QUEUE)) {
+                mo.setLoanAmount(random.nextInt(20000 - 1000 + 1) + 1000);
+                mo.setLoanDuration(random.nextInt(24 - 6 + 1) + 6);
+            }
             queueName = StaticStrings.DANSKEBANK_TRANSLATOR_QUEUE;
 
             MessageObject moToSend = new MessageObject(mo.getCpr(), mo.getLoanAmount(), mo.getLoanDuration(), mo.getCreditScore());
