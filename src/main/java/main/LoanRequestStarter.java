@@ -20,10 +20,10 @@ public class LoanRequestStarter {
         String cpr = "123456-1234";//scan.nextLine();
 
         System.out.println("\nPlease provide loan amount (in numbers).");
-        int loanAmount = 20000;//scan.nextInt();
+        int loanAmount = 10;//scan.nextInt();
 
         System.out.println("\nPlease provide loan duration (in numbers).");
-        int loanDuration = 12;//scan.nextInt();
+        int loanDuration = 360;//scan.nextInt();
 
         MessageObject mo = new MessageObject(cpr, loanAmount, loanDuration);
 

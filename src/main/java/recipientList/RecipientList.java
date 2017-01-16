@@ -59,7 +59,6 @@ public class RecipientList implements ComponentInterface {
 
     @Override
     public void logic(String queueMessage) {
-        System.out.println("HELLO FROM RECIPIENT LIST : " + queueMessage);
 
         MessageObject mo = gson.fromJson(queueMessage, MessageObject.class);
         List<String> banks = mo.getBankNameList();

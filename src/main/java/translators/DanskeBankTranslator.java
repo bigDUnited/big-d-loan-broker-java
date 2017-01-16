@@ -20,17 +20,20 @@ import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import normalizer.Normalizer;
 import structure.ComponentInterface;
 
 public class DanskeBankTranslator implements ComponentInterface {
 
     private Gson gson;
     private Publisher publisher;
+    private Normalizer normalizer;
 
     @Override
     public void init() {
         gson = new Gson();
         publisher = new Publisher();
+        normalizer = new Normalizer();
 
         try {
             ConnectionFactory factory = new ConnectionFactory();
@@ -138,22 +141,30 @@ public class DanskeBankTranslator implements ComponentInterface {
 //            Logger.getLogger(DanskeBankTranslator.class.getName()).log(Level.SEVERE, null, ex);
 //        }
         try {
+            
             String EXCHANGE_NAME = "cphbusiness.bankJSON";
 
             ConnectionFactory factory = new ConnectionFactory();
             factory.setHost("datdb.cphbusiness.dk");
-            factory.setPort(5672);
+            
             Connection connection = factory.newConnection();
 
             Channel channel = connection.createChannel();
+            
+            AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
+            builder.replyTo(StaticStrings.NORMALIZER_QUEUE);
+            //builder.correlationId(delivery.getProperties().getCorrelationId());
+            builder.contentType("JSON");
+            //builder.appId(delivery.getProperties().getAppId());
 
-            channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
-
-            channel.basicPublish(EXCHANGE_NAME, "", null, message.getBytes());
+            channel.basicPublish(EXCHANGE_NAME, "", builder.build(), message.getBytes());
             System.out.println(" [x] Sent '" + message + "'");
+            normalizer.init();
 
             channel.close();
             connection.close();
+            
+            
         } catch (IOException ex) {
             Logger.getLogger(DanskeBankTranslator.class.getName()).log(Level.SEVERE, null, ex);
         } catch (TimeoutException ex) {

@@ -19,4 +19,6 @@ public class StaticStrings {
     public final static String CREDIT_BUREAU_URL = "http://139.59.154.97:8080/CreditScoreService/CreditScoreService?wsdl";
     
     public final static String NORMALIZER_QUEUE = "NRM_QUEUE";
+    
+    public final static String NORMALIZER_EXCHANGE = "NRM_EXCHANGE";
 }
