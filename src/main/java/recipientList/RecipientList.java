@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import structure.ComponentInterface;
 import translators.DanskeBankTranslator;
+import translators.NordeaBankTranslator;
 
 public class RecipientList implements ComponentInterface {
 
@@ -93,6 +94,7 @@ public class RecipientList implements ComponentInterface {
                 mo.setLoanDuration(random.nextInt(24 - 6 + 1) + 6);
             }
             queueName = StaticStrings.DANSKEBANK_TRANSLATOR_QUEUE;
+            //queueName = StaticStrings.NORDEA_TRANSLATOR_QUEUE;
 
             MessageObject moToSend = new MessageObject(mo.getCpr(), mo.getLoanAmount(), mo.getLoanDuration(), mo.getCreditScore());
             moToSend.setChosenBank(banks.get(i));
@@ -102,6 +104,7 @@ public class RecipientList implements ComponentInterface {
             publisher.publishMessage(hostAddress, queueName, queueMessageToBank);
 
             DanskeBankTranslator dbt = null;
+            NordeaBankTranslator nbt = null;
             switch (queueName) {
                 case StaticStrings.DANSKEBANK_TRANSLATOR_QUEUE:
                     if (dbt == null) {
@@ -110,7 +113,10 @@ public class RecipientList implements ComponentInterface {
                     dbt.init();
                     break;
                 case StaticStrings.NORDEA_TRANSLATOR_QUEUE:
-                    //other
+                    if (nbt == null) {
+                        nbt = new NordeaBankTranslator();
+                    }
+                    nbt.init();
                     break;
                 case StaticStrings.NYTKREDIT_TRANSLATOR_QUEUE:
                     //other
